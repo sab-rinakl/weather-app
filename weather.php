@@ -51,4 +51,3 @@ function displayWeatherInfo($city, $data) {
     echo '<img src="' . $iconUrl . '" alt="Weather Icon" class="weather-icon">';
     echo '</div>';
 }
-?>

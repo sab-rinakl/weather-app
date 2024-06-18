@@ -1,43 +1,38 @@
-// Function to fetch weather data via AJAX
-function getWeatherData(city) {
-    fetch(`https://api.open-meteo.com/v1/forecast?city=${city}`)
-        .then(response => response.json())
-        .then(data => {
-            if(data && data.forecast && data.forecast.daily) {
-                const today = data.forecast.daily[0];
-                const weatherInfo = `
-                    <div class="weather-info">
-                        <h3>Weather in ${city}:</h3>
-                        <p>Temperature: ${today.temperature.avg}°C</p>
-                        <p>Humidity: ${today.humidity}%</p>
-                        <p>Wind Speed: ${today.wind.speed} m/s</p>
-                        <p>Description: ${today.weather.description}</p>
-                    </div>
-                `;
-                document.getElementById('weatherResults').innerHTML = weatherInfo;
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener to the form submission
+    document.getElementById('weatherForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-                // Add weather icon
-                const iconCode = today.weather.icon;
-                const iconUrl = `https://open-meteo.com/img/icons/${iconCode}.png`;
-                const weatherIcon = `<img src="${iconUrl}" alt="Weather Icon" class="weather-icon">`;
-                document.getElementById('weatherResults').innerHTML += `<div class="weather-icons">${weatherIcon}</div>`;
-            } else {
-                document.getElementById('weatherResults').innerHTML = `<p class="error">Weather data not found for ${city}. Please try again.</p>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching weather data:', error);
-            document.getElementById('weatherResults').innerHTML = `<p class="error">Failed to fetch weather data. Please try again later.</p>`;
-        });
-}
+        // Get the value of city input and trim any leading/trailing whitespace
+        const city = document.getElementById('city').value.trim();
 
-// Handle form submission
-document.getElementById('weatherForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const city = document.getElementById('city').value.trim();
-    if(city !== '') {
-        getWeatherData(city);
-    } else {
-        document.getElementById('weatherResults').innerHTML = `<p class="error">Please enter a city name.</p>`;
-    }
+        // Check if the city input is not empty
+        if(city !== '') {
+            fetchWeather(city); // Call fetchWeather function with the city name
+        } else {
+            // Display error message if city input is empty
+            document.getElementById('weatherResults').innerHTML = '<p class="error">Please enter a city name.</p>';
+        }
+    });
 });
+
+// Function to fetch weather data from server-side PHP script
+function fetchWeather(city) {
+    fetch('weather.php', {
+        method: 'POST', // Use POST method to send city name to server
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'city=' + encodeURIComponent(city), // Encode city name for URL-safe transmission
+    })
+    .then(response => response.text()) // Convert response to text format
+    .then(data => {
+        // Update weatherResults div with server response (HTML weather information)
+        document.getElementById('weatherResults').innerHTML = data;
+    })
+    .catch(error => {
+        console.error('Error fetching weather data:', error); // Log error message to console
+        // Display error message in weatherResults div if fetching data fails
+        document.getElementById('weatherResults').innerHTML = '<p class="error">Failed to fetch weather data. Please try again later.</p>';
+    });
+}

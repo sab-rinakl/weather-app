@@ -16,10 +16,12 @@
         </form>
 
         <div id="weatherResults">
-            <!-- Weather information will be displayed here -->
+            <!-- PHP includes weather.php to handle server-side processing and display -->
+            <?php include 'weather.php'; ?>
         </div>
     </div>
 
+    <!-- Include JavaScript file for client-side interactions -->
     <script src="script.js"></script>
 </body>
 </html>
